@@ -1,0 +1,9 @@
+CLAUDE.md
+STATE.md
+PLAN.md
+.env
+__pycache__/
+.venv/
+venv/
+logs/
+.idea/
