@@ -1,0 +1,15 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+COPY requirements/migrate.txt ./
+RUN pip install --no-cache-dir -r migrate.txt
+
+COPY alembic.ini ./
+COPY alembic ./alembic
+
+ENTRYPOINT ["alembic"]
+CMD ["upgrade", "head"]
