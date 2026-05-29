@@ -2,8 +2,8 @@ from typing import Sequence, Union
 
 from alembic import op
 
-revision: str = "0002"
-down_revision: Union[str, Sequence[str], None] = "0001"
+revision: str = "0001"
+down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -13,7 +13,6 @@ def upgrade() -> None:
         """
         CREATE TABLE sessions (
             id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-            user_id       INTEGER     NOT NULL REFERENCES users(id) ON DELETE CASCADE,
             template_name TEXT        NOT NULL DEFAULT 'default',
             title         TEXT,
             created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -21,7 +20,6 @@ def upgrade() -> None:
         );
         """
     )
-    op.execute("CREATE INDEX ix_sessions_user_id ON sessions (user_id);")
     op.execute(
         """
         CREATE OR REPLACE FUNCTION set_updated_at()

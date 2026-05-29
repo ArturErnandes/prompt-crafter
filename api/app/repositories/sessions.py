@@ -11,20 +11,20 @@ class SessionRepository:
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
-    async def create(self, user_id: int, template_name: str) -> RowMapping:
-        logger.info("Создание сессии | user_id=%s | template_name=%s", user_id, template_name)
+    async def create(self, template_name: str) -> RowMapping:
+        logger.info("Создание сессии | template_name=%s", template_name)
         try:
             result = await self._session.execute(
                 text(
-                    "INSERT INTO sessions (user_id, template_name) VALUES (:user_id, :template_name)"
+                    "INSERT INTO sessions (template_name) VALUES (:template_name)"
                     " RETURNING id, template_name, created_at"
                 ),
-                {"user_id": user_id, "template_name": template_name},
+                {"template_name": template_name},
             )
             row = result.mappings().one()
             await self._session.commit()
         except Exception as e:
-            logger.error("Ошибка создания сессии | user_id=%s | error=%s", user_id, str(e))
+            logger.error("Ошибка создания сессии | error=%s", str(e))
             raise RepositoryError(f"create: {e}") from e
         return row
 
@@ -46,17 +46,16 @@ class SessionRepository:
 
         return row
 
-    async def list_by_user(self, user_id: int) -> list[RowMapping]:
-        logger.info("Запрос списка сессий | user_id=%s", user_id)
+    async def list_all(self) -> list[RowMapping]:
+        logger.info("Запрос списка сессий")
         try:
             result = await self._session.execute(
-                text("SELECT * FROM sessions WHERE user_id = :user_id ORDER BY updated_at DESC"),
-                {"user_id": user_id},
+                text("SELECT * FROM sessions ORDER BY updated_at DESC"),
             )
             return result.mappings().all()
         except Exception as e:
-            logger.error("Ошибка запроса списка сессий | user_id=%s | error=%s", user_id, str(e))
-            raise RepositoryError(f"list_by_user: {e}") from e
+            logger.error("Ошибка запроса списка сессий | error=%s", str(e))
+            raise RepositoryError(f"list_all: {e}") from e
 
     async def update_title(self, session_id: str, title: str) -> None:
         logger.info("Обновление заголовка сессии | session_id=%s", session_id)
