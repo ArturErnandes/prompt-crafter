@@ -30,6 +30,29 @@ services:
         condition: service_healthy
     restart: "no"
 
+  api:
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile.api
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-prompt_crafter}?sslmode=disable
+      OLLAMA_URL: ${OLLAMA_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL}
+      OLLAMA_NUM_CTX: ${OLLAMA_NUM_CTX:-2048}
+      APP_HOST: ${APP_HOST:-0.0.0.0}
+      APP_PORT: ${APP_PORT:-8000}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    volumes:
+      - ./logs/api:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
 volumes:
   prompt_crafter_data:
     name: prompt_crafter
