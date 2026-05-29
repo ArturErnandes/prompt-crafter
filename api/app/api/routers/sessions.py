@@ -16,7 +16,7 @@ router = APIRouter(prefix="/api/v1/sessions", tags=["Sessions"])
 async def create_session(session: AsyncSession = Depends(get_session)) -> SessionCreateResponse:
     try:
         repo = SessionRepository(session)
-        row = await repo.create(user_id=1, template_name="default")
+        row = await repo.create(template_name="default")
         return SessionCreateResponse(**row)
     except RepositoryError as e:
         logger.error("create_session db_error | error=%s", str(e))
@@ -30,7 +30,7 @@ async def create_session(session: AsyncSession = Depends(get_session)) -> Sessio
 async def list_sessions(session: AsyncSession = Depends(get_session)) -> list[SessionResponse]:
     try:
         repo = SessionRepository(session)
-        rows = await repo.list_by_user(user_id=1)
+        rows = await repo.list_all()
         return [SessionResponse(**row) for row in rows]
     except RepositoryError as e:
         logger.error("list_sessions db_error | error=%s", str(e))
