@@ -1,11 +1,12 @@
 from datetime import datetime
+from uuid import UUID
 
 from pydantic import BaseModel
 
 
 class MessageResponse(BaseModel):
-    id: str
-    session_id: str
+    id: UUID
+    session_id: UUID
     role: str
     content: str
     created_at: datetime
